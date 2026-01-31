@@ -14,32 +14,49 @@ An intelligent conversational chatbot built using **LangGraph** for graph-based 
 ## Prerequisites
 
 - Python 3.9+
+# Chatbot with LangGraph & Streamlit
+
+An intelligent conversational chatbot built using **LangGraph** for graph-based conversation flow management and **Streamlit** for a user-friendly web interface. Powered by OpenAI's GPT models.
+
+**Live demo:** https://langgraphmanish.streamlit.app/
+
+## Features
+
+- Real-time conversational AI
+- Graph-based conversation management with LangGraph
+- In-memory message checkpointing
+- Streamlit web UI for quick interaction
+
+## Prerequisites
+
+- Python 3.9+
 - OpenAI API Key
 - Git
 
 ## Installation
 
-1. **Clone the repository:**
+1. Clone the repository:
 ```bash
 git clone https://github.com/manish324saini/Chatbot_LangGrapg.git
 cd Chatbot_LangGrapg
 ```
 
-2. **Create a virtual environment (optional but recommended):**
+2. (Optional) Create a virtual environment:
 ```bash
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
-3. **Install dependencies:**
+3. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-4. **Set up environment variables:**
-Create a `.env` file in the root directory with your API keys:
+4. Configure API keys (locally):
+Create a `.env` file in the project root with your keys (this file is ignored by git):
 ```
-OPENAI_API_KEY=your-openai-api-key-here
+OPENAI_API_KEY=your-openai-api-key
+HUGGINGFACEHUB_API_TOKEN=your-hf-token (optional)
 ```
 
 ## Running Locally
@@ -49,80 +66,63 @@ Start the Streamlit app:
 streamlit run streamlit.py
 ```
 
-The app will open in your browser at `http://localhost:8501`
+Open http://localhost:8501 in your browser.
 
 ## Project Structure
 
 ```
-├── streamlit.py          # Main Streamlit app
-├── chatbot_graph.py      # LangGraph chatbot configuration
+├── streamlit.py          # Main Streamlit app (entrypoint)
+├── chatbot_graph.py      # LangGraph chatbot configuration and graph
 ├── requirements.txt      # Python dependencies
-├── .env                  # Environment variables (not committed)
-├── .gitignore           # Git ignore rules
-└── README.md            # This file
+├── .env                  # Local environment variables (ignored)
+├── .gitignore            # Git ignore rules
+├── .streamlit/           # Streamlit config and secrets template
+└── README.md             # This file
 ```
 
 ## How It Works
 
-### Components
+- `chatbot_graph.py`: defines the `ChatState`, builds a LangGraph `StateGraph`, and integrates the `ChatOpenAI` model. The code loads `OPENAI_API_KEY` from environment variables or Streamlit secrets and handles missing keys gracefully.
+- `streamlit.py`: Streamlit UI, manages session state for message history, validates that `OPENAI_API_KEY` is configured, and invokes the chatbot graph to get responses.
 
-1. **chatbot_graph.py**: 
-   - Defines the `ChatState` using TypedDict
-   - Creates a LangGraph StateGraph with a single chat node
-   - Integrates OpenAI's ChatOpenAI model
-   - Uses InMemorySaver for conversation checkpointing
+## Deployment (Streamlit Cloud)
 
-2. **streamlit.py**:
-   - Provides the web UI with Streamlit
-   - Manages conversation history in session state
-   - Sends messages to the chatbot graph
-   - Displays chat messages with proper formatting
+1. Go to https://share.streamlit.io/ and sign in with GitHub.
+2. Click **New app** and provide:
+   - Repository: `manish324saini/Chatbot_LangGrapg`
+   - Branch: `main`
+   - Main file path: `streamlit.py`
+3. Click **Deploy**.
 
-## Deployment to Streamlit Cloud
+### Add secrets on Streamlit Cloud
+After deployment, open the app settings (⋮) → **Secrets** and add:
+```toml
+OPENAI_API_KEY = "your-openai-key"
+HUGGINGFACEHUB_API_TOKEN = "your-hf-token"  # optional
+```
+Save — the app will restart and pick up the secrets.
 
-1. **Push to GitHub** (already done):
-   - Your code is at: https://github.com/manish324saini/Chatbot_LangGrapg
+## Security Notes
 
-2. **Deploy on Streamlit Cloud**:
-   - Go to https://share.streamlit.io/
-   - Sign in with GitHub
-   - Click "New app"
-   - Select repository: `manish324saini/Chatbot_LangGrapg`
-   - Select branch: `main`
-   - Enter main file path: `streamlit.py`
-   - Click "Deploy"
-
-3. **Add Secrets**:
-   - After deployment, go to app settings (⋮ menu)
-   - Click "Secrets"
-   - Add your environment variables:
-   ```toml
-   OPENAI_API_KEY = "your-openai-api-key"
-   ```
-
-## Configuration
-
-### Environment Variables
-
-- `OPENAI_API_KEY`: Your OpenAI API key (required)
-
-### Streamlit Configuration
-
-The app uses default Streamlit settings. To customize, create/edit `.streamlit/config.toml`.
-
-## Requirements
-
-See `requirements.txt` for all dependencies, including:
-- `streamlit` - Web framework
-- `langgraph` - Graph-based conversation management
-- `langchain` - LLM framework
-- `langchain-openai` - OpenAI integration
-- `python-dotenv` - Environment variable management
+- Do NOT commit your `.env` file or API keys to GitHub. The repository already has `.env` removed from commits and `.gitignore` configured to ignore it.
+- If you accidentally committed secrets, rotate them immediately (OpenAI/Hugging Face) and remove them from the git history.
 
 ## Troubleshooting
 
-### ModuleNotFoundError for langgraph
-Ensure the local file is named `chatbot_graph.py`, not `langgraph.py`, to avoid shadowing the langgraph package.
+- If you see an error about `OPENAI_API_KEY` missing, add the key to Streamlit Secrets or your local `.env` and restart the app.
+- If `langgraph` module errors occur, ensure your local file is named `chatbot_graph.py` (not `langgraph.py`).
+
+## Contributing
+
+Open issues or PRs in the GitHub repository: https://github.com/manish324saini/Chatbot_LangGrapg
+
+## License
+
+MIT
+
+---
+
+Deployed app: https://langgraphmanish.streamlit.app/
 
 ### API Key Issues
 - Ensure `OPENAI_API_KEY` is set in your `.env` file

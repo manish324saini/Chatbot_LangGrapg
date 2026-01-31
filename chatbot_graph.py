@@ -1,3 +1,4 @@
+import os
 from langgraph.graph import StateGraph, START, END
 from typing import TypedDict, Annotated
 from langchain_core.messages import BaseMessage
@@ -8,13 +9,24 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-llm = ChatOpenAI()
+# Get API key from environment or Streamlit secrets
+api_key = os.getenv("OPENAI_API_KEY")
+if not api_key:
+    try:
+        import streamlit as st
+        api_key = st.secrets.get("OPENAI_API_KEY")
+    except:
+        pass
+
+llm = ChatOpenAI(api_key=api_key) if api_key else None
 
 class ChatState(TypedDict):
     messages: Annotated[list[BaseMessage], add_messages]
 
 def chat_node(state: ChatState):
     messages = state['messages']
+    if llm is None:
+        return {"messages": [BaseMessage(content="Error: OPENAI_API_KEY not configured", type="ai")]}
     response = llm.invoke(messages)
     return {"messages": [response]}
 
